@@ -1,0 +1,8 @@
+node_modules
+config
+#db config file
+backend/db/db.config.js
+# serverless zip
+.serverless
+# webpack build files
+.webpack
