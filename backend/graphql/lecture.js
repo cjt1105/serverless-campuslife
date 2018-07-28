@@ -21,7 +21,7 @@ export const resolvers = {
 	}
 };
 
-async function getAllLectures() {
+function getAllLectures() {
 	return new Promise((resolve, reject) => {
 		db.query("MATCH (n:Lecture) RETURN n", (err, results) => {
 			if(err){

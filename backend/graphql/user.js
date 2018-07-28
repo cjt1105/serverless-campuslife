@@ -34,8 +34,8 @@ export const resolvers = {
 		lectures: (root, args) => getAllLectures(args.id)
 	}
 };
-
-async function getAllUsers() {
+//// Query functions
+function getAllUsers() {
 	return new Promise((resolve, reject) => {
 		db.query("MATCH (n:User) RETURN n", (err, results) => {
 			if(err){
@@ -48,7 +48,7 @@ async function getAllUsers() {
 	})
 }
 
-async function getSingleUser(_id) {
+function getSingleUser(_id) {
 	return new Promise((resolve, reject) => {
 		db.query("MATCH (n:User) WHERE ID(n) = {id} RETURN n", {id: _id}, (err, results) => {
 			if(err){
@@ -61,7 +61,7 @@ async function getSingleUser(_id) {
     })
 }
 
-async function getUserLectures(_id) {
+function getUserLectures(_id) {
 	return new Promise((resolve, reject) => {
 		db.query("MATCH (n:User)-[r]-(lectures) WHERE ID(n) = {id} RETURN lectures", {id: _id}, (err, results) => {
 			if(err){
@@ -73,15 +73,14 @@ async function getUserLectures(_id) {
 		})
     })
 }
-
-async function _createUser(_user) {
+/// Mutation functions
+function _createUser(_user) {
 	return new Promise((resolve, reject) => {
 		db.query("CREATE (n:User {user}) RETURN n", {user: _user}, (err, results) => {
 			if(err){
 				reject(err)
 			}
 			else {
-				console.log(results)
 				resolve(results[0])
 			}
 		})
