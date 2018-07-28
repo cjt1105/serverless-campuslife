@@ -1,7 +1,9 @@
 node_modules
 config
-#db config file
+# db config file
 backend/db/db.config.js
+# aws amplify config
+frontend/src/amplify.config.js
 # serverless zip
 .serverless
 # webpack build files

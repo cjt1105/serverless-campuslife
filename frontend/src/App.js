@@ -14,6 +14,13 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import { withClientState } from 'apollo-link-state';
 import gql from "graphql-tag"
 import { Auth } from 'aws-amplify';
+import {
+  identityPoolId,
+  region,
+  userPoolId,
+  userPoolWebClientId,
+  graphqlEndpoint
+} from './amplify.config';
 
 const cache = new InMemoryCache()
 
@@ -23,7 +30,7 @@ const authLink = setContext((request) => new Promise( (resolve, reject) => {
     const token = session.idToken.jwtToken;
     console.log(token)
     resolve({
-      headers: { Authorization: token }
+      headers: { Authorization: `Bearer ${token}` }
     });
   })
 }));
@@ -34,19 +41,19 @@ const client = new ApolloClient({
   cache,
   link: ApolloLink.from([
     authLink,
-    new HttpLink({uri: "https://3kf1qnt9h8.execute-api.us-east-1.amazonaws.com/production/graphql" })
+    new HttpLink({uri: graphqlEndpoint })
   ])
 });
 
 Amplify.configure({
   API: {
-    graphql_endpoint: "https://3kf1qnt9h8.execute-api.us-east-1.amazonaws.com/production/graphql"
+    graphql_endpoint: graphqlEndpoint
   },
   Auth: {
-    identityPoolId: "us-east-1:79a32e49-6b8e-464e-862b-6c14be2f039a",
-    region: process.env.REACT_APP_AWS_AUTH_REGION, // REQUIRED - Amazon Cognito Region
-    userPoolId: "us-east-1_hdGTZdrRr", // OPTIONAL - Amazon Cognito User Pool ID
-    userPoolWebClientId: "4qp171f4fm0dt1m2dh0ep8tb1d", // User Pool App Client ID
+    identityPoolId: identityPoolId,
+    region: region, // REQUIRED - Amazon Cognito Region
+    userPoolId: userPoolId, // OPTIONAL - Amazon Cognito User Pool ID
+    userPoolWebClientId: userPoolWebClientId, // User Pool App Client ID
   }
 });
 
