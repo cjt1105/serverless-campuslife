@@ -11,6 +11,10 @@ import {
   typeDef as Lecture,
   resolvers as lectureResolvers
 } from './graphql/lecture';
+import {
+  typeDef as Assignment,
+  resolvers as assignmentResolvers
+} from './graphql/assignment'
 
 // set up base query and mutation types and resolver object to allow for schema modularization
 const Query = `
@@ -28,8 +32,8 @@ const Mutation = `
 const resolvers = {};
 
 const myGraphQLSchema = makeExecutableSchema({
-    typeDefs: [ Query, Mutation, User, Lecture ],
-    resolvers: merge(resolvers, userResolvers, lectureResolvers),
+    typeDefs: [ Query, Mutation, User, Lecture, Assignment ],
+    resolvers: merge(resolvers, userResolvers, lectureResolvers, assignmentResolvers),
     logger: console,
 });
 
