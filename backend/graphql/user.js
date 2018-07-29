@@ -12,7 +12,8 @@ export const typeDef = `
         firstName: String
         lastName: String
         year: String
-        lectures: [Lecture]
+		lectures: [Lecture]
+		assignments:[Assignment]
     }
 
     extend type Mutation {
@@ -31,11 +32,12 @@ export const resolvers = {
 		createUser: (root, args) => _createUser(args)
 	},
 	User: {
-		lectures: (root, args) => getAllLectures(args.id)
+		lectures: (user) => getUserLectures(user.id),
+		assignments: (user) => getUserAssignments(user.id)
 	}
 };
-
-async function getAllUsers() {
+//// Query functions
+function getAllUsers() {
 	return new Promise((resolve, reject) => {
 		db.query("MATCH (n:User) RETURN n", (err, results) => {
 			if(err){
@@ -48,7 +50,7 @@ async function getAllUsers() {
 	})
 }
 
-async function getSingleUser(_id) {
+function getSingleUser(_id) {
 	return new Promise((resolve, reject) => {
 		db.query("MATCH (n:User) WHERE ID(n) = {id} RETURN n", {id: _id}, (err, results) => {
 			if(err){
@@ -61,27 +63,39 @@ async function getSingleUser(_id) {
     })
 }
 
-async function getUserLectures(_id) {
+function getUserLectures(_id) {
 	return new Promise((resolve, reject) => {
-		db.query("MATCH (n:User)-[r]-(lectures) WHERE ID(n) = {id} RETURN lectures", {id: _id}, (err, results) => {
+		db.query("MATCH (n:User)-[:ATTENDS_LECTURE]-(lectures) WHERE ID(n) = {id} RETURN lectures", {id: _id}, (err, results) => {
 			if(err){
 				reject(err)
 			}
 			else {
-				resolve(results[0])
+				resolve(results)
 			}
 		})
     })
 }
 
-async function _createUser(_user) {
+function getUserAssignments(_id) {
+	return new Promise((resolve, reject) => {
+		db.query("MATCH (n:User)-[:ON_CALENDAR]-(assignments) WHERE ID(n) = {id} RETURN assignments", {id: _id}, (err, results) => {
+			if(err){
+				reject(err)
+			}
+			else {
+				resolve(results)
+			}
+		})
+    })
+}
+/// Mutation functions
+function _createUser(_user) {
 	return new Promise((resolve, reject) => {
 		db.query("CREATE (n:User {user}) RETURN n", {user: _user}, (err, results) => {
 			if(err){
 				reject(err)
 			}
 			else {
-				console.log(results)
 				resolve(results[0])
 			}
 		})
