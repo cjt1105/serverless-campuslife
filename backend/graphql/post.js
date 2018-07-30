@@ -16,6 +16,10 @@ export const typeDef = `
             body: String!
             posterID: Int!
         ): Post
+        addPostSource(
+            postID: Int!
+            sourceID: Int!
+        ): Relationship
     }
 `
 
@@ -24,7 +28,8 @@ export const resolvers = {
         post: (root, args) => getSinglePost(args.id)
     },
     Mutation: {
-        createPost: (root, args) => createPost(args)
+        createPost: (root, args) => createPost(args),
+        addPostSource: (root, args) => addPostSource(args)
     },
     Post: {
         poster: (post) => getPoster(post.id)
@@ -68,6 +73,19 @@ function getSinglePost(id){
             }
             else{
                 resolve(node)
+            }
+        })
+    })
+}
+
+function addPostSource(args){
+    return new Promise((resolve, reject) => {
+        db.relate(args.postID, 'POSTED_IN', args.sourceID, (err, rel) => {
+            if(err){
+                reject(err)
+            }
+            else {
+                resolve(rel)
             }
         })
     })

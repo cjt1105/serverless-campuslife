@@ -19,6 +19,10 @@ import {
   typeDef as Post,
   resolvers as postResolvers
 } from './graphql/post'
+import {
+  typeDef as Relationship,
+  resolvers as relationshipResolvers
+} from './graphql/relationship'
 
 // set up base query and mutation types and resolver object to allow for schema modularization
 const Query = `
@@ -36,8 +40,8 @@ const Mutation = `
 const resolvers = {};
 
 const myGraphQLSchema = makeExecutableSchema({
-    typeDefs: [ Query, Mutation, User, Lecture, Assignment, Post ],
-    resolvers: merge(resolvers, userResolvers, lectureResolvers, assignmentResolvers, postResolvers),
+    typeDefs: [ Query, Mutation, User, Lecture, Assignment, Post, Relationship ],
+    resolvers: merge(resolvers, userResolvers, lectureResolvers, assignmentResolvers, postResolvers, relationshipResolvers),
     logger: console,
 });
 
