@@ -9,6 +9,7 @@ export const typeDef = `
         id: ID!
         body: String!
         poster: User!
+        comments: [Comment]
     }
 
     extend type Mutation {
@@ -16,9 +17,9 @@ export const typeDef = `
             body: String!
             posterID: Int!
         ): Post
-        addPostSource(
+        addPostOrigin(
             postID: Int!
-            sourceID: Int!
+            originID: Int!
         ): Relationship
     }
 `
@@ -29,29 +30,44 @@ export const resolvers = {
     },
     Mutation: {
         createPost: (root, args) => createPost(args),
-        addPostSource: (root, args) => addPostSource(args)
+        addPostOrigin: (root, args) => addPostOrigin(args)
     },
     Post: {
-        poster: (post) => getPoster(post.id)
+        poster: (post) => getPoster(post.id),
+        comments: (post) => getComments(post.id)
     }
 }
-
+/// Mutation functions
 function createPost(post) {
     return new Promise((resolve, reject) => {
-        /// save post to db
-        db.save({body: post.body}, 'Post', (err, node) => {
+        const txn = db.batch();
+        const _post = txn.save({body: post.body});
+        txn.label(_post, 'Post')
+        txn.relate(_post, 'POSTED_BY', post.posterID);
+        txn.commit((err, results) => {
             if(err){
                 reject(err)
             }
             else {
-                // add relationship between post and poster
-                db.relate(node.id, 'POSTED_BY', post.posterID, (err, rel) => {})
-                resolve(node)
+                resolve(results[0])
             }
         })
     })
 }
 
+function addPostOrigin(args){
+    return new Promise((resolve, reject) => {
+        db.relate(args.postID, 'POSTED_IN', args.sourceID, (err, rel) => {
+            if(err){
+                reject(err)
+            }
+            else {
+                resolve(rel)
+            }
+        })
+    })
+}
+/// Query functions
 function getPoster(id) {
     return new Promise((resolve, reject) => {
         db.query("MATCH (n:Post)-[:POSTED_BY]-(poster) WHERE ID(n) = {postID} RETURN poster", {postID: id}, (err, results) => {
@@ -65,6 +81,19 @@ function getPoster(id) {
     })
 }
 
+function getComments(id) {
+    return new Promise((resolve, reject) => {
+        db.query("MATCH (n:Post)-[:COMMENT_ORIGIN]-(comments) WHERE ID(n) = {postID} RETURN comments", {postID: id}, (err, results) => {
+            if(err){
+                reject(err)
+            }
+            else{
+                resolve(results)
+            }
+        })
+    })
+}
+
 function getSinglePost(id){
     return new Promise((resolve, reject) => {
         db.read(id, (err, node) => {
@@ -73,19 +102,6 @@ function getSinglePost(id){
             }
             else{
                 resolve(node)
-            }
-        })
-    })
-}
-
-function addPostSource(args){
-    return new Promise((resolve, reject) => {
-        db.relate(args.postID, 'POSTED_IN', args.sourceID, (err, rel) => {
-            if(err){
-                reject(err)
-            }
-            else {
-                resolve(rel)
             }
         })
     })

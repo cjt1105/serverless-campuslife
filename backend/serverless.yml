@@ -26,7 +26,7 @@ functions:
         method: post
         cors: true
         authorizer:
-          arn: arn:aws:cognito-idp:us-east-1:256074719064:userpool/us-east-1_hdGTZdrRr
+          # arn: arn:aws:cognito-idp:us-east-1:256074719064:userpool/us-east-1_hdGTZdrRr
   playground:
     handler: handler.playgroundHandler
     events:
