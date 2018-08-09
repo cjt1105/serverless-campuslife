@@ -11,10 +11,6 @@ export const typeDef = `
         poster: User!
     }
 
-    extend type Query {
-
-    }
-
     extend type Mutation {
         createComment(
             body: String!
@@ -49,16 +45,19 @@ function getPoster(id) {
 
 function createComment(comment) {
     return new Promise((resolve, reject) => {
-        /// save comment to db
-        db.save({body: comment.body}, 'Comment', (err, node) => {
+        //// create comment and relationships to user and post/assignment/comment
+        const txn = db.batch();
+        const _comment = txn.save(comment);
+
+        txn.label(_comment, 'Comment')
+        txn.relate(_comment, 'COMMENTED_BY');
+        txn.relate(_comment, 'COMMENT_ORIGIN')
+        txn.commit((err, results) => {
             if(err){
                 reject(err)
             }
             else {
-                // add relationship between comment and commenter
-                db.relate(node.id, 'COMMENTED_BY', comment.posterID, (err, rel) => {})
-                db.relate(node.id, 'COMMENT_ORIGIN', comment.originID, (err, rel) => {})
-                resolve(node)
+                resolve(results[0])
             }
         })
     })
