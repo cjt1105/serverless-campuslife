@@ -27,6 +27,14 @@ import {
   typeDef as Comment,
   resolvers as commentResolvers
 } from './graphql/comment';
+import {
+  typeDef as Residence,
+  resolvers as residenceResolvers
+} from './graphql/residence';
+import {
+  typeDef as Event
+  // resolvers as eventResolvers
+} from './graphql/event';
 
 // set up base query and mutation types and resolver object to allow for schema modularization
 const Query = `
@@ -44,8 +52,28 @@ const Mutation = `
 const resolvers = {};
 
 const myGraphQLSchema = makeExecutableSchema({
-    typeDefs: [ Query, Mutation, User, Lecture, Assignment, Post, Relationship, Comment ],
-    resolvers: merge(resolvers, userResolvers, lectureResolvers, assignmentResolvers, postResolvers, relationshipResolvers, commentResolvers),
+    typeDefs: [
+      Query,
+      Mutation,
+      User,
+      Lecture,
+      Assignment,
+      Post,
+      Relationship,
+      Comment,
+      Residence,
+      Event
+    ],
+    resolvers: merge(
+      resolvers,
+      userResolvers,
+      lectureResolvers,
+      assignmentResolvers,
+      postResolvers,
+      relationshipResolvers,
+      commentResolvers,
+      residenceResolvers
+    ),
     logger: console,
 });
 
